@@ -106,6 +106,75 @@
     </style>
 
     <script>
+        // 发送翻译请求的函数
+        function translateUsingNewApi(apiKey, textToTranslate, fromLang, toLang, onresult) {
+            var apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+
+            var payload = {
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "text": "请你作为专业的同传译员，把用户提供内容从 " + fromLang + " 实时地翻译至" + toLang + "，不添加任何解释, 不会进行任何询问。有时用户提供的内容是当时不完整的，请你根据情况翻译！用户提供的所有内容都是需要翻译的内容，就算它是疑问句式！"
+                            }
+                        ]
+                    },
+                    {
+                        "parts": [
+                            {
+                                "text": "好的，我是专业的同传译员。我会实时地把用户提供的所有内容翻译成" + toLang + "。我将只返回翻译后的内容, 不添加任何解释, 不会进行任何询问。"
+                            }
+                        ],
+                        "role": "model"
+                    },
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "text": textToTranslate
+                            }
+                        ]
+                    }
+                ],
+                "generationConfig": {
+                    "temperature": "0.9",
+                    "topP": "1",
+                    "topK": "32",
+                    "candidateCount": "1",
+                    "maxOutputTokens": "512"
+                }
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', apiEndpoint + '?key=' + apiKey, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var translatedText = response.candidates[0].content.parts[0].text;
+
+                    // 使用翻译的内容更新HTML元素
+                    onresult(translatedText);
+                }
+            };
+
+            xhr.send(JSON.stringify(payload));
+        }
+
+        // 更新HTML元素的函数
+        function updateTextHtml(div_prefix, toText) {
+            var textElementImb = document.getElementById(div_prefix + '-imb');
+            var textElementBg = document.getElementById(div_prefix + '-bg');
+            var textElementFg = document.getElementById(div_prefix + '-fg');
+
+            if(textElementImb && textElementBg && textElementFg) {
+                textElementImb.textContent = toText;
+                textElementBg.textContent = toText;
+                textElementFg.textContent = toText;
+            }
+        }
          
         // URLパラメータ取得用関数 ---------------------------
         function getParam(name, url) {
@@ -120,15 +189,9 @@
 
         // 一定時間変化がなかったら消す ------------------------------------
         var fn_del = function() {
-            document.getElementById('speech_text-imb').innerHTML = '';
-            document.getElementById('speech_text-bg').innerHTML = '';
-            document.getElementById('speech_text-fg').innerHTML = '';
-            document.getElementById('trans_text-imb').innerHTML = '';
-            document.getElementById('trans_text-bg').innerHTML = '';
-            document.getElementById('trans_text-fg').innerHTML = '';
-            document.getElementById('trans_text2-imb').innerHTML = '';
-            document.getElementById('trans_text2-bg').innerHTML = '';
-            document.getElementById('trans_text2-fg').innerHTML = '';
+            updateTextHtml(div_prefix="speech_text", toText="");
+            updateTextHtml(div_prefix="trans_text", toText="");
+            updateTextHtml(div_prefix="trans_text2", toText="");
 
             // 各フラグをリセット
             isSpeechRecognitionComplete = false;
@@ -181,15 +244,15 @@
         const url = "https://raw.githubusercontent.com/sayonari/inappropriate-words-ja/master/Sexual.txt";
         var sexual_words = [];
 
-        if(anti_sexual != 'false') {
-            fetch(url)
-                .then( r => r.text() )
-                .then( t => {
-                    sexual_words = t.split("\n");
-                    // 空の要素を削除
-                    sexual_words = sexual_words.filter(Boolean);
-                })
-        }
+        // if(anti_sexual != 'false') {
+        //     fetch(url)
+        //         .then( r => r.text() )
+        //         .then( t => {
+        //             sexual_words = t.split("\n");
+        //             // 空の要素を削除
+        //             sexual_words = sexual_words.filter(Boolean);
+        //         })
+        // }
             
 
         // 音声認識本体 /////////////////////////////////////////////////
@@ -199,7 +262,7 @@
         var recognition = new webkitSpeechRecognition();
         recognition.lang = 'ja';
         recognition.interimResults = true;
-        // recognition.continuous = true;
+        recognition.continuous = true;
         var recog_text = '';
         var recog_IM_text = '';
         var recog_conf = 0;
@@ -304,9 +367,7 @@
                     }
 
                     // 認識結果を表示する ---------------------
-                    document.getElementById('speech_text-imb').innerHTML = recog_text;
-                    document.getElementById('speech_text-bg').innerHTML = recog_text;
-                    document.getElementById('speech_text-fg').innerHTML = recog_text;
+                    updateTextHtml(div_prefix="speech_text", toText=recog_text);
                     isSpeechRecognitionComplete = true; // フラグを更新
 
                     // すべての処理が完了した後に内容を消す
@@ -321,97 +382,39 @@
                     }
 
                     if(gas_key != null){
+                        if(arg_trans != null) {
+                            translateUsingNewApi(apiKey=gas_key, textToTranslate=recog_text,
+                            fromLang=trans_sourcelang, 
+                            toLang=trans_destlang, 
+                            onresult=function(translatedText) {
+                                updateTextHtml(div_prefix="speech_text", toText=recog_text);
+                                updateTextHtml(div_prefix="trans_text", toText=translatedText);
+                                isTextTranslation1Complete = true; // フラグを更新
 
-                        // 翻訳1言語目
-                        // console.log('arg_trans:'+arg_trans)
-                        if(arg_trans != null){
-                            query = TRANS_URL + '?text=' + recog_text + '&source=' + trans_sourcelang + '&target=' + trans_destlang;
-                            request.open('GET', query, true);
-
-                            request.onreadystatechange = function(){
-                                if (request.readyState === 4 && request.status === 200){
-
-                                    var responseText1 = request.responseText;
-
-                                    // JSON形式であるかを確認し、JSONであればtranslatedTextを抽出
-                                    try {
-                                        var jsonResponse = JSON.parse(responseText1);
-                                        if (jsonResponse.translatedText) {
-                                            responseText1 = jsonResponse.translatedText;
-                                            var translatedCount = jsonResponse.translatedCount;
-                                            document.getElementById('translationCount').innerHTML = translatedCount;
-                                            console.log('translatedCount(1):'+translatedCount);
-                                        }
-                                    } catch (e) {
-                                        // JSON形式でなければ何もしない
-                                    }
-
-                                    document.getElementById('speech_text-imb').innerHTML = recog_text;
-                                    document.getElementById('speech_text-bg').innerHTML = recog_text;
-                                    document.getElementById('speech_text-fg').innerHTML = recog_text;
-                                    // document.getElementById('trans_text-imb').innerHTML = '[' + trans_destlang + '] ' + request.responseText;
-                                    // document.getElementById('trans_text-bg').innerHTML = '[' + trans_destlang + '] ' + request.responseText;
-                                    // document.getElementById('trans_text-fg').innerHTML = '[' + trans_destlang + '] ' + request.responseText;
-                                    document.getElementById('trans_text-imb').innerHTML =  responseText1;
-                                    document.getElementById('trans_text-bg').innerHTML =  responseText1;
-                                    document.getElementById('trans_text-fg').innerHTML =  responseText1;
-                                    isTextTranslation1Complete = true; // フラグを更新
-
-                                    // すべての処理が完了した後に内容を消す
-                                    if (timer != null && shouldClearText()) {
-                                        setTimeout(fn_del, timer);
-                                    }
+                                // すべての処理が完了した後に内容を消す
+                                if (timer != null && shouldClearText()) {
+                                    setTimeout(fn_del, timer);
                                 }
-                            }
-                            request.send(null);
+                            });
                         }
+                        if(arg_trans2 != null && trans_destlang != trans2_destlang){
+                            translateUsingNewApi(apiKey=gas_key, textToTranslate=recog_text,
+                            fromLang=trans_sourcelang, 
+                            toLang=trans2_destlang, 
+                            onresult=function(translatedText) {
+                                updateTextHtml(div_prefix="speech_text", toText=recog_text);
+                                updateTextHtml(div_prefix="trans_text2", toText=translatedText);
+                                isTextTranslation2Complete = true; // フラグを更新
 
-                        // 翻訳2言語目
-                        // console.log('arg_trans2:'+arg_trans2)
-                        if(arg_trans2 != null){
-                            query2 = TRANS_URL + '?text=' + recog_text + '&source=' + trans_sourcelang + '&target=' + trans2_destlang;
-                            request2.open('GET', query2, true);
-
-                            request2.onreadystatechange = function(){
-                                if (request2.readyState === 4 && request2.status === 200){
-
-                                    var responseText2 = request2.responseText;
-
-                                    // JSON形式であるかを確認し、JSONであればtranslatedTextを抽出
-                                    try {
-                                        var jsonResponse = JSON.parse(responseText2);
-                                        if (jsonResponse.translatedText) {
-                                            responseText2 = jsonResponse.translatedText;
-                                            document.getElementById('translationCount').innerHTML = jsonResponse.translatedCount;
-                                            var translatedCount2 = jsonResponse.translatedCount;
-                                            document.getElementById('translationCount').innerHTML = translatedCount2;
-                                            console.log('translatedCount(2):'+translatedCount2);
-                                        }
-                                    } catch (e) {
-                                        // JSON形式でなければ何もしない
-                                    }
-
-                                    document.getElementById('speech_text-imb').innerHTML = recog_text;
-                                    document.getElementById('speech_text-bg').innerHTML = recog_text;
-                                    document.getElementById('speech_text-fg').innerHTML = recog_text;
-                                    document.getElementById('trans_text2-imb').innerHTML = responseText2;
-                                    document.getElementById('trans_text2-bg').innerHTML = responseText2;
-                                    document.getElementById('trans_text2-fg').innerHTML = responseText2;
-                                    isTextTranslation2Complete = true; // フラグを更新
-
-                                    // すべての処理が完了した後に内容を消す
-                                    if (timer != null && shouldClearText()) {
-                                        setTimeout(fn_del, timer);
-                                    }
+                                // すべての処理が完了した後に内容を消す
+                                if (timer != null && shouldClearText()) {
+                                    setTimeout(fn_del, timer);
                                 }
-                            }
-                            request2.send(null);
+                            });
                         }
 
                     } else {
-                        document.getElementById('speech_text-imb').innerHTML = recog_text;
-                        document.getElementById('speech_text-bg').innerHTML = recog_text;
-                        document.getElementById('speech_text-fg').innerHTML = recog_text;
+                        updateTextHtml(div_prefix="speech_text", toText=recog_text);
                     }
 
                 }
@@ -436,10 +439,8 @@
                     }
 
                     // 画面表示テキスト更新 ---
-                    if(recog_IM_text != ""){
-                        document.getElementById('speech_text-imb').innerHTML = "<< " + recog_IM_text + " >>";
-                        document.getElementById('speech_text-bg').innerHTML = "<< " + recog_IM_text + " >>";
-                        document.getElementById('speech_text-fg').innerHTML = "<< " + recog_IM_text + " >>";
+                    if(recog_IM_text != ""){                        
+                        updateTextHtml(div_prefix="speech_text", toText="<< " + recog_IM_text + " >>");
                     }
 
                 }
@@ -510,31 +511,22 @@ const SoftwareVersion = "2024.1.5";
 const SoftwareDeveloper = "[開発者：さぁたん ＆ さよなりω/(大学教員)西村良太]"
 
 const speech_text_first = "[" + SoftwareTitle + " (Ver:" + SoftwareVersion + ")" + "]";
-document.getElementById('speech_text-bg').innerHTML = speech_text_first;
-document.getElementById('speech_text-fg').innerHTML = speech_text_first;
-document.getElementById('speech_text-imb').innerHTML = speech_text_first;
+
+updateTextHtml(div_prefix="speech_text", toText=speech_text_first);
 
 const trans1_text_first = SoftwareDeveloper;
-document.getElementById('trans_text-bg').innerHTML = trans1_text_first
-document.getElementById('trans_text-fg').innerHTML = trans1_text_first
-document.getElementById('trans_text-imb').innerHTML = trans1_text_first
+updateTextHtml(div_prefix="trans_text", toText=trans1_text_first);
 
 const trans2_text_first = "[ここに結果表示（翻訳２）]";
-document.getElementById('trans_text2-bg').innerHTML = trans2_text_first;
-document.getElementById('trans_text2-fg').innerHTML = trans2_text_first;
-document.getElementById('trans_text2-imb').innerHTML = trans2_text_first;
+updateTextHtml(div_prefix="trans_text2", toText=trans2_text_first);
 
 
 // 初期表示文の変更 /////
 if (getParam('trans') == null) {
-    document.getElementById('trans_text-bg').innerHTML = '';
-    document.getElementById('trans_text-fg').innerHTML = '';
-    document.getElementById('trans_text-imb').innerHTML = '';
+    updateTextHtml(div_prefix="trans_text", toText="");
 }
 if (getParam('trans2') == null) {
-    document.getElementById('trans_text2-bg').innerHTML = '';
-    document.getElementById('trans_text2-fg').innerHTML = '';
-    document.getElementById('trans_text2-imb').innerHTML = '';
+    updateTextHtml(div_prefix="trans_text2", toText="");
 }
 
 

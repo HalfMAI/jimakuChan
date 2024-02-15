@@ -118,8 +118,10 @@
 <HR>
 
 <!-- # API key text box ##################### -->
-翻訳用 Google API-KEY: <input type="text" name="gas_key" id="gas_key" size="60" oninput="updateOptionValues();" /> キーの作成方法 → <a target="_blank" href="http://www.sayonari.com/trans_asr/index_asr.html">[LINK]</a><BR>
-翻訳回数：<div id="displayTransCount" style="display: inline-block; _display: inline;"></div><font color="gray">（上限 無料：5,000回，有料：20,000回）←僕じゃなくてGoogle にお金払う</font><BR>
+翻訳用 Google gemini-pro API: <input type="text" name="gas_key" id="gas_key" size="60" oninput="updateOptionValues();" /> 
+<!-- キーの作成方法 → <a target="_blank" href="http://www.sayonari.com/trans_asr/index_asr.html">[LINK]</a> -->
+<BR>
+<!-- 翻訳回数：<div id="displayTransCount" style="display: inline-block; _display: inline;"></div><font color="gray">（上限 無料：5,000回，有料：20,000回）←僕じゃなくてGoogle にお金払う</font><BR> -->
 <HR>
 
     <!-- # 背景の色 ############################## -->
@@ -654,18 +656,19 @@ URL : <textarea name="url" id="url" rows="7" cols="90"></textarea><BR>
 <!-- # 翻訳回数取得　############################ -->
 <script>
     function getTranslationCount() {
-        var iframe = document.getElementById('asr_frame');
-        var transCount = iframe.contentWindow.document.getElementById('translationCount').innerHTML;
-        if(transCount == ''){
-            transCount = '[ココに回数出るよ！]';
-        }
-        return transCount;
+        // var iframe = document.getElementById('asr_frame');
+        // var transCount = iframe.contentWindow.document.getElementById('translationCount').innerHTML;
+        // if(transCount == ''){
+        //     transCount = '[ココに回数出るよ！]';
+        // }
+        // return transCount;
+        return 0;
     }
 
-    // 1秒ごとに翻訳カウントを更新
-    setInterval(function() {
-        document.getElementById('displayTransCount').innerHTML = getTranslationCount();
-    }, 1000);
+    // // 1秒ごとに翻訳カウントを更新
+    // setInterval(function() {
+    //     document.getElementById('displayTransCount').innerHTML = getTranslationCount();
+    // }, 1000);
 </script>
 
 <!-- # iframeの高さを切り替える　############################ -->
