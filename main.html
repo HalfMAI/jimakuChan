@@ -116,14 +116,21 @@
                         "role": "user",
                         "parts": [
                             {
-                                "text": "请你作为专业的同传译员，把用户提供内容从 " + fromLang + " 实时地翻译至" + toLang + "，不添加任何解释, 不会进行任何询问。有时用户提供的内容是当时不完整的，请你根据情况翻译！用户提供的所有内容都是需要翻译的内容，就算它是疑问句式！"
+                                "text": `Please act as a text translation tool and provide only the translated content. 
+Please follow the requirements listed below:
+1. Provide high-quality translations.
+2. Ensure that the translations are idiomatic and take into account relevant context and background information.
+3. Ensure that the tone and pronouns match the style and context of the content, and avoid using overly formal language.
+4. Ensure that the number of returned lines is consistent with the number of provided lines. Do not format the text.
+5. Ensure that the order of the translated text is identical to that of the source text.
+6. 请你作为专业的同传译员，把用户提供内容从 ` + fromLang + " 实时地翻译至" + toLang + "; 用户提供的所有内容都是需要翻译的内容，就算它是疑问句式！"
                             }
                         ]
                     },
                     {
                         "parts": [
                             {
-                                "text": "好的，我是专业的同传译员。我会实时地把用户提供的所有内容翻译成" + toLang + "。我将只返回翻译后的内容, 不添加任何解释, 不会进行任何询问。"
+                                "text": "OK"
                             }
                         ],
                         "role": "model"
@@ -382,7 +389,7 @@
                     }
 
                     if(gas_key != null){
-                        if(arg_trans != null) {
+                        if(arg_trans != null && recog_text.trim().length > 0) {
                             translateUsingNewApi(apiKey=gas_key, textToTranslate=recog_text,
                             fromLang=trans_sourcelang, 
                             toLang=trans_destlang, 
@@ -397,7 +404,7 @@
                                 }
                             });
                         }
-                        if(arg_trans2 != null && trans_destlang != trans2_destlang){
+                        if(arg_trans2 != null && trans_destlang != trans2_destlang && recog_text.trim().length > 0){
                             translateUsingNewApi(apiKey=gas_key, textToTranslate=recog_text,
                             fromLang=trans_sourcelang, 
                             toLang=trans2_destlang, 
