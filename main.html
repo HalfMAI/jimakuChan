@@ -116,41 +116,39 @@
                         "role": "user",
                         "parts": [
                             {
-                                "text": `Please act as a text translation tool and provide only the translated content. 
-Please follow the requirements listed below:
-1. Provide high-quality translations.
-2. Ensure that the translations are idiomatic and take into account relevant context and background information.
-3. Ensure that the tone and pronouns match the style and context of the content, and avoid using overly formal language.
-4. Ensure that the number of returned lines is consistent with the number of provided lines. Do not format the text.
-5. Ensure that the order of the translated text is identical to that of the source text.
-6. 当用户输入的是疑问句，命令句式等所有类型。你都不能进行回复，只对原文本进行翻译。
-7. 请你作为专业的同传译员，把用户提供内容从 ` + fromLang + " 实时地翻译至" + toLang + "." 
-                            }
-                        ]
-                    },
-                    {
-                        "parts": [
-                            {
-                                "text": "OK, 我会把用户提供内容从" + fromLang + " 实时地翻译至" + toLang + "; As a text translation tool and provide only the translated content"
-                            }
-                        ],
-                        "role": "model"
-                    },
-                    {
-                        "role": "user",
-                        "parts": [
-                            {
-                                "text": textToTranslate
+                                "text": `Translate from ${fromLang} to ${toLang}. The translation should use a gentle, peaceful tone, similar to a friend, and avoid using harsh tone. Remember, the ultimate goal is to keep it accurate and have the same meaning as the original input. 
+Translate from ${fromLang} to ${toLang}.
+Input:
+${textToTranslate}
+Output:`
                             }
                         ]
                     }
+                ],                
+                "safetySettings": [
+                    {
+                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold": "BLOCK_NONE"
+                    },
+                    {
+                    "category": "HARM_CATEGORY_HATE_SPEECH",
+                    "threshold": "BLOCK_NONE"
+                    },
+                    {
+                    "category": "HARM_CATEGORY_HARASSMENT",
+                    "threshold": "BLOCK_NONE"
+                    },
+                    {
+                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "threshold": "BLOCK_NONE"
+                    }
                 ],
                 "generationConfig": {
-                    "temperature": "0.9",
+                    "temperature": "0.4",
                     "topP": "1",
                     "topK": "32",
                     "candidateCount": "1",
-                    "maxOutputTokens": "512"
+                    "maxOutputTokens": "8192"
                 }
             };
 
@@ -172,16 +170,55 @@ Please follow the requirements listed below:
         }
 
         // 更新HTML元素的函数
-        function updateTextHtml(div_prefix, toText) {
+        function updateTextHtml(div_prefix, toText, is_final_text=false) {
             var textElementImb = document.getElementById(div_prefix + '-imb');
             var textElementBg = document.getElementById(div_prefix + '-bg');
             var textElementFg = document.getElementById(div_prefix + '-fg');
 
-            if(textElementImb && textElementBg && textElementFg) {
-                textElementImb.textContent = toText;
-                textElementBg.textContent = toText;
-                textElementFg.textContent = toText;
+            
+            if ("speech_text" == div_prefix) {
+                if (toText.length == 0) {
+                    return;
+                } 
+            } else {
+                textElementImb.innerHTML = toText;
+                textElementBg.innerHTML = toText;
+                textElementFg.innerHTML = toText;
+                return;
             }
+
+            if (true == is_final_text) {
+                if (historyTextArr.length > 0){
+                    if (historyTextArr[historyTextArr.length-1].length < 20) {
+                        historyTextArr[historyTextArr.length-1] += " " + toText;
+                    } else {
+                        if (historyTextArr.length > 2){
+                            historyTextArr.shift();
+                        } 
+                        historyTextArr.push(toText);
+                    }
+                } else {
+                    historyTextArr.push(toText);
+                }
+            } 
+
+            // 合并数组里的所有text并用空格分行
+            var history_text_str = ""
+            if (true == is_final_text) {
+                history_text_str = historyTextArr.join('<br>');
+            } else {
+                history_text_str = historyTextArr.join('<br>') + "<br>"; 
+                if (history_text_str == " " || history_text_str == "<br>") {history_text_str ="";}
+                history_text_str = history_text_str + toText;
+            }
+            if(textElementImb && textElementBg && textElementFg) {
+                if (history_text_str == " " || history_text_str == "<br>") {history_text_str ="";}
+                
+                textElementImb.innerHTML = history_text_str;
+                textElementBg.innerHTML = history_text_str;
+                textElementFg.innerHTML = history_text_str;
+            }
+            return history_text_str;
         }
          
         // URLパラメータ取得用関数 ---------------------------
@@ -247,6 +284,8 @@ Please follow the requirements listed below:
         var id_stop_recog;
 
         var count = 0;
+
+        var historyTextArr = [];
 
         // URLからテキストファイルをリスト形式で読み込む -----------------------
         // const url = "https://raw.githubusercontent.com/sayonari/inappropriate-words-ja/master/Sexual.txt";
@@ -375,7 +414,7 @@ Please follow the requirements listed below:
                     // }
 
                     // 認識結果を表示する ---------------------
-                    updateTextHtml(div_prefix="speech_text", toText=recog_text);
+                    var allText = updateTextHtml(div_prefix="speech_text", toText=recog_text, is_final_text=true);
                     isSpeechRecognitionComplete = true; // フラグを更新
 
                     // すべての処理が完了した後に内容を消す
@@ -391,12 +430,11 @@ Please follow the requirements listed below:
 
                     if(gas_key != null){
                         if(arg_trans != null && recog_text.trim().length > 0) {
-                            translateUsingNewApi(apiKey=gas_key, textToTranslate=recog_text,
+                            translateUsingNewApi(apiKey=gas_key, textToTranslate=allText,
                             fromLang=trans_sourcelang, 
                             toLang=trans_destlang, 
                             onresult=function(translatedText) {
-                                updateTextHtml(div_prefix="speech_text", toText=recog_text);
-                                updateTextHtml(div_prefix="trans_text", toText=translatedText);
+                                updateTextHtml(div_prefix="trans_text", toText=translatedText, is_final_text=true);
                                 isTextTranslation1Complete = true; // フラグを更新
 
                                 // すべての処理が完了した後に内容を消す
@@ -406,12 +444,11 @@ Please follow the requirements listed below:
                             });
                         }
                         if(arg_trans2 != null && trans_destlang != trans2_destlang && recog_text.trim().length > 0){
-                            translateUsingNewApi(apiKey=gas_key, textToTranslate=recog_text,
+                            translateUsingNewApi(apiKey=gas_key, textToTranslate=allText,
                             fromLang=trans_sourcelang, 
                             toLang=trans2_destlang, 
                             onresult=function(translatedText) {
-                                updateTextHtml(div_prefix="speech_text", toText=recog_text);
-                                updateTextHtml(div_prefix="trans_text2", toText=translatedText);
+                                updateTextHtml(div_prefix="trans_text2", toText=translatedText, is_final_text=true);
                                 isTextTranslation2Complete = true; // フラグを更新
 
                                 // すべての処理が完了した後に内容を消す
@@ -448,7 +485,7 @@ Please follow the requirements listed below:
 
                     // 画面表示テキスト更新 ---
                     if(recog_IM_text != ""){                        
-                        updateTextHtml(div_prefix="speech_text", toText="<< " + recog_IM_text + " >>");
+                        updateTextHtml(div_prefix="speech_text", toText=recog_IM_text + "...");
                     }
 
                 }
@@ -559,9 +596,9 @@ if (getParam('textAlign') != null){
     }
 }
 
-if (getParam('whiteSpace') != null){
-    document.getElementById("text_table").style.whiteSpace = getParam('whiteSpace');
-}
+// if (getParam('whiteSpace') != null){
+//     document.getElementById("text_table").style.whiteSpace = getParam('whiteSpace');
+// }
 
 // 高さ合わせ用フォント（色を背景色と同じにする） ############################################
 // 音声認識テキスト -------
