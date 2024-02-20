@@ -214,9 +214,15 @@ Output:`
             if(textElementImb && textElementBg && textElementFg) {
                 if (history_text_str == " " || history_text_str == "<br>") {history_text_str ="";}
                 
-                textElementImb.innerHTML = history_text_str;
-                textElementBg.innerHTML = history_text_str;
-                textElementFg.innerHTML = history_text_str;
+                if (true == is_final_text) {
+                    textElementImb.innerHTML = history_text_str;
+                    textElementBg.innerHTML = history_text_str;
+                    textElementFg.innerHTML = history_text_str;
+                } else {
+                    textElementImb.textContent = toText;
+                    textElementBg.textContent = toText;
+                    textElementFg.textContent = toText;
+                }
             }
             return history_text_str;
         }
