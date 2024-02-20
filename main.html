@@ -401,7 +401,34 @@ Output:`
         }
 
         // 認識結果が返ってきたとき ------------------
+        var updateTimeout = null; 
+        var updateInterval = 750;
         recognition.onresult = function(event) {
+            var results = event.results;
+            var is_final = false;
+            for (var i = event.resultIndex; i < results.length; i++) {
+                if (results[i].isFinal) {
+                    is_final = true;
+                    break;
+                }
+            }
+
+            // 如果已经设置了更新，则取消之前的更新；但如果现在是最后的识别结果就直接显示就行了
+            if (updateTimeout && is_final == false) {
+                return;
+            }
+
+            if (updateTimeout) {
+                clearTimeout(updateTimeout);
+            }
+            updateTimeout = setTimeout(function() {
+                updateTimeout = null;
+            }, updateInterval);
+            
+            updateRecognitionDisplay(event); 
+        };
+
+        function updateRecognitionDisplay(event) {
             var results = event.results;
             for (var i = event.resultIndex; i < results.length; i++) {
                 if (results[i].isFinal)
@@ -558,7 +585,7 @@ Output:`
 
 // バージョン情報の表示 ---------------------------------
 const SoftwareTitle = "音声認識字幕ちゃん";
-const SoftwareVersion = "2024.2.20 v1";
+const SoftwareVersion = "2024.2.21 v1.0.3";
 const SoftwareDeveloper = "[開発者：さぁたん ＆ さよなりω/(大学教員)西村良太]"
 
 const speech_text_first = "[" + SoftwareTitle + " (Ver:" + SoftwareVersion + ")" + "]";
