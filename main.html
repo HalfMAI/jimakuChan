@@ -116,8 +116,8 @@
                         "role": "user",
                         "parts": [
                             {
-                                "text": `Translate from ${fromLang} to ${toLang}. The translation should use a gentle, peaceful tone, similar to a friend, and avoid using harsh tone. Remember, the ultimate goal is to keep it accurate and have the same meaning as the original input. 
-Translate from ${fromLang} to ${toLang}.
+                                "text": `You as a professional translation software. Translate from ${fromLang} to ${toLang}. Remember, the ultimate goal is to keep it accurate and have the SAME MEANING as the original input. 
+Now, please translate from ${fromLang} to ${toLang}:
 Input:
 ${textToTranslate}
 Output:`
@@ -190,7 +190,7 @@ Output:`
             if (true == is_final_text) {
                 if (historyTextArr.length > 0){
                     if (historyTextArr[historyTextArr.length-1].length < 15) {
-                        historyTextArr[historyTextArr.length-1] += " " + toText;
+                        historyTextArr[historyTextArr.length-1] += ". " + toText;
                     } else {
                         historyTextArr.push(toText);
                         if (historyTextArr.length > 2){
@@ -202,15 +202,12 @@ Output:`
                 }
             } 
 
-            // 合并数组里的所有text并用空格分行
+            // 合并数组里的所有text并用<br>分行
             var history_text_str = ""
             if (true == is_final_text) {
                 history_text_str = historyTextArr.join('<br>');
-            } else {
-                history_text_str = historyTextArr.join('<br>') + "<br>"; 
-                if (history_text_str == " " || history_text_str == "<br>") {history_text_str ="";}
-                history_text_str = history_text_str + toText;
             }
+
             if(textElementImb && textElementBg && textElementFg) {
                 if (history_text_str == " " || history_text_str == "<br>") {history_text_str ="";}
                 
@@ -219,9 +216,9 @@ Output:`
                     textElementBg.innerHTML = history_text_str;
                     textElementFg.innerHTML = history_text_str;
                 } else {
-                    textElementImb.textContent = toText;
-                    textElementBg.textContent = toText;
-                    textElementFg.textContent = toText;
+                    textElementImb.textContent = "<br>" + toText;
+                    textElementBg.textContent = "<br>" + toText;
+                    textElementFg.textContent = "<br>" + toText;
                 }
             }
             return history_text_str;
@@ -402,7 +399,7 @@ Output:`
 
         // 認識結果が返ってきたとき ------------------
         var updateTimeout = null; 
-        var updateInterval = 750;
+        var updateInterval = 1000;
         recognition.onresult = function(event) {
             var results = event.results;
             var is_final = false;
@@ -585,7 +582,7 @@ Output:`
 
 // バージョン情報の表示 ---------------------------------
 const SoftwareTitle = "音声認識字幕ちゃん";
-const SoftwareVersion = "2024.2.21 v1.0.3";
+const SoftwareVersion = "2024.2.21 v1.0.4";
 const SoftwareDeveloper = "[開発者：さぁたん ＆ さよなりω/(大学教員)西村良太]"
 
 const speech_text_first = "[" + SoftwareTitle + " (Ver:" + SoftwareVersion + ")" + "]";
