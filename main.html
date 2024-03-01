@@ -189,8 +189,8 @@ Output:`
 
             if (true == is_final_text) {
                 if (historyTextArr.length > 0){
-                    if (historyTextArr[historyTextArr.length-1].length < 10) {
-                        historyTextArr[historyTextArr.length-1] += " " + toText;
+                    if (historyTextArr[historyTextArr.length-1].length < 20) {
+                        historyTextArr[historyTextArr.length-1] += "." + toText;
                     } else {
                         historyTextArr.push(toText);
                         if (historyTextArr.length > 2){
@@ -312,7 +312,7 @@ Output:`
         var recognition = new webkitSpeechRecognition();
         recognition.lang = 'ja';
         recognition.interimResults = true;
-        recognition.continuous = true;
+        // recognition.continuous = true;
         var recog_text = '';
         var recog_IM_text = '';
         var recog_conf = 0;
@@ -584,7 +584,7 @@ Output:`
 
 // バージョン情報の表示 ---------------------------------
 const SoftwareTitle = "音声認識字幕ちゃん";
-const SoftwareVersion = "2024.2.21 v1.0.5";
+const SoftwareVersion = "2024.2.21 v1.0.6";
 const SoftwareDeveloper = "[開発者：さぁたん ＆ さよなりω/(大学教員)西村良太]"
 
 const speech_text_first = "[" + SoftwareTitle + " (Ver:" + SoftwareVersion + ")" + "]";
