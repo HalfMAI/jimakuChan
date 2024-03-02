@@ -412,7 +412,10 @@ Output:`
 
             if (is_final) {
                 updateRecognitionDisplay(event); 
-
+                
+                if (updateTimeout) {
+                    clearInterval(updateTimeout);
+                }
                 updateTimeout = setTimeout(function() {
                     updateTimeout = null;
                 }, 3000);
@@ -588,7 +591,7 @@ Output:`
 
 // バージョン情報の表示 ---------------------------------
 const SoftwareTitle = "音声認識字幕ちゃん";
-const SoftwareVersion = "2024.2.21 v1.0.7";
+const SoftwareVersion = "2024.2.21 v1.0.8";
 const SoftwareDeveloper = "[開発者：さぁたん ＆ さよなりω/(大学教員)西村良太]"
 
 const speech_text_first = "[" + SoftwareTitle + " (Ver:" + SoftwareVersion + ")" + "]";
