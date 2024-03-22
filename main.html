@@ -399,7 +399,7 @@ Output:`
 
         // 認識結果が返ってきたとき ------------------
         var updateTimeout = null; 
-        var updateInterval = 1000;
+        var updateInterval = 750;
         recognition.onresult = function(event) {
             var results = event.results;
             var is_final = false;
@@ -418,7 +418,7 @@ Output:`
                 }
                 updateTimeout = setTimeout(function() {
                     updateTimeout = null;
-                }, 3000);
+                }, 1500);
                 return;
             }
 
