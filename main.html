@@ -190,7 +190,7 @@ Output:`
             if (true == is_final_text) {
                 if (historyTextArr.length > 0){
                     if (historyTextArr[historyTextArr.length-1].length < 20) {
-                        historyTextArr[historyTextArr.length-1] += "。  " + toText;
+                        historyTextArr[historyTextArr.length-1] += "。   " + toText;
                     } else {
                         historyTextArr.push(toText);
                         if (historyTextArr.length > 2){
@@ -399,7 +399,7 @@ Output:`
 
         // 認識結果が返ってきたとき ------------------
         var updateTimeout = null; 
-        var updateInterval = 750;
+        var updateInterval = 1000;
         recognition.onresult = function(event) {
             var results = event.results;
             var is_final = false;
@@ -418,7 +418,7 @@ Output:`
                 }
                 updateTimeout = setTimeout(function() {
                     updateTimeout = null;
-                }, 1500);
+                }, 2000);
                 return;
             }
 
