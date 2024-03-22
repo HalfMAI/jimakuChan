@@ -189,8 +189,8 @@ Output:`
 
             if (true == is_final_text) {
                 if (historyTextArr.length > 0){
-                    if (historyTextArr[historyTextArr.length-1].length < 10) {
-                        historyTextArr[historyTextArr.length-1] += ". " + toText;
+                    if (historyTextArr[historyTextArr.length-1].length < 20) {
+                        historyTextArr[historyTextArr.length-1] += "。  " + toText;
                     } else {
                         historyTextArr.push(toText);
                         if (historyTextArr.length > 2){
