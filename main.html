@@ -205,11 +205,11 @@ Output:`
             // 合并数组里的所有text并用<br>分行
             var history_text_str = ""
             if (true == is_final_text) {
-                history_text_str = historyTextArr.join('<br>');
+                history_text_str = historyTextArr.join('。   <br>');
             }
 
             if(textElementImb && textElementBg && textElementFg) {
-                if (history_text_str == " " || history_text_str == "<br>") {history_text_str ="";}
+                if (history_text_str == " " || history_text_str == "。   <br>") {history_text_str ="";}
                 
                 if (true == is_final_text) {
                     textElementImb.innerHTML = history_text_str;
