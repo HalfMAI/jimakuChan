@@ -279,9 +279,9 @@ Output:`
 
         // 一定時間認識結果がなかったら，そこで認識終了 --------------------
         var short_pause = getParam('short_pause');
-        if(short_pause == null) {
-            short_pause = 750;
-        }
+        // if(short_pause == null) {
+        short_pause = 3000;
+        // }
 
         var stop_recog;
         var id_stop_recog;
