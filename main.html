@@ -189,7 +189,7 @@ Output:`
 
             if (true == is_final_text) {
                 if (historyTextArr.length > 0){
-                    if (historyTextArr[historyTextArr.length-1].length < 20) {
+                    if (historyTextArr[historyTextArr.length-1].length < 15) {
                         historyTextArr[historyTextArr.length-1] += "。   " + toText;
                     } else {
                         historyTextArr.push(toText);
@@ -279,8 +279,9 @@ Output:`
 
         // 一定時間認識結果がなかったら，そこで認識終了 --------------------
         var short_pause = getParam('short_pause');
+        short_pause = 5000; // 强制5秒无声音重置
         // if(short_pause == null) {
-        short_pause = 3000;
+        //     short_pause = 0;
         // }
 
         var stop_recog;
@@ -421,6 +422,13 @@ Output:`
                 }, 2000);
                 return;
             }
+            
+            // ショートポーズストップ用タイムアウト
+            if(short_pause != null) {
+                clearTimeout(id_stop_recog);
+                id_stop_recog = setTimeout(stop_recog, short_pause);
+                console.log('reset');
+            }
 
             // 如果已经设置了更新，则取消之前的更新；但如果现在是最后的识别结果就直接显示就行了
             if (updateTimeout) {
@@ -504,12 +512,6 @@ Output:`
                 }
                 else
                 {
-                    // 「ショートポースが来たら，音声認識を強制的に止める」のタイムアウト処理を削除する -------
-                    if(short_pause != null) clearTimeout(id_stop_recog);
-
-                    // ショートポーズストップ用タイムアウト
-                    if(short_pause != null) id_stop_recog = setTimeout(stop_recog,short_pause);
-
                     // 認識結果を変数に格納
                     recog_IM_text = results[i][0].transcript
 
