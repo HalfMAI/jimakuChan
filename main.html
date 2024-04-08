@@ -192,8 +192,10 @@ Output:`
                     if (historyTextArr[historyTextArr.length-1].length < 10) {
                         historyTextArr[historyTextArr.length-1] += " " + toText;
                     } else {
-                        historyTextArr.push(toText);
-                        historyTextArr.slice(-2);
+                        historyTextArr.push(toText);                        
+                        if (historyTextArr.length > 2){
+                            historyTextArr.slice(-2);
+                        }
                     }
                 } else {
                     historyTextArr.push(toText);
