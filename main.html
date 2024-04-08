@@ -189,13 +189,11 @@ Output:`
 
             if (true == is_final_text) {
                 if (historyTextArr.length > 0){
-                    if (historyTextArr[historyTextArr.length-1].length < 15) {
+                    if (historyTextArr[historyTextArr.length-1].length < 10) {
                         historyTextArr[historyTextArr.length-1] += " " + toText;
                     } else {
                         historyTextArr.push(toText);
-                        if (historyTextArr.length > 2){
-                            historyTextArr.shift();
-                        }
+                        historyTextArr.slice(-2);
                     }
                 } else {
                     historyTextArr.push(toText);
@@ -205,11 +203,11 @@ Output:`
             // 合并数组里的所有text并用<br>分行
             var history_text_str = ""
             if (true == is_final_text) {
-                history_text_str = historyTextArr.join('<br>');
+                history_text_str = historyTextArr.join('。<br>');
             }
 
             if(textElementImb && textElementBg && textElementFg) {
-                if (history_text_str == " " || history_text_str == "<br>") {history_text_str ="";}
+                if (history_text_str == " " || history_text_str == "。<br>") {history_text_str ="";}
                 
                 if (true == is_final_text) {
                     textElementImb.innerHTML = history_text_str;
@@ -593,7 +591,7 @@ Output:`
 
 // バージョン情報の表示 ---------------------------------
 const SoftwareTitle = "音声認識字幕ちゃん";
-const SoftwareVersion = "2024.03.23 v1.0.9";
+const SoftwareVersion = "2024.03.23 v1.0.10";
 const SoftwareDeveloper = "[開発者：さぁたん ＆ さよなりω/(大学教員)西村良太]"
 
 const speech_text_first = "[" + SoftwareTitle + " (Ver:" + SoftwareVersion + ")" + "]";
