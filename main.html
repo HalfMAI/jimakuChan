@@ -189,7 +189,7 @@ Output:`
 
             if (true == is_final_text) {
                 if (historyTextArr.length > 0){
-                    if (historyTextArr[historyTextArr.length-1].length < 15) {
+                    if (historyTextArr[historyTextArr.length-1].length < 10) {
                         historyTextArr[historyTextArr.length-1] += " " + toText;
                     } else {
                         historyTextArr.push(toText);                        
@@ -419,7 +419,7 @@ Output:`
                 }
                 updateTimeout = setTimeout(function() {
                     updateTimeout = null;
-                }, 3500);
+                }, 2500);
                 return;
             }
             
