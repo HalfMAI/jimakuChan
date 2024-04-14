@@ -292,18 +292,18 @@ Output:`
         var historyTextArr = [];
 
         // URLからテキストファイルをリスト形式で読み込む -----------------------
-        // const url = "https://raw.githubusercontent.com/sayonari/inappropriate-words-ja/master/Sexual.txt";
-        // var sexual_words = [];
+        const url = "https://raw.githubusercontent.com/sayonari/inappropriate-words-ja/master/Sexual.txt";
+        var sexual_words = [];
 
-        // if(anti_sexual != 'false') {
-        //     fetch(url)
-        //         .then( r => r.text() )
-        //         .then( t => {
-        //             sexual_words = t.split("\n");
-        //             // 空の要素を削除
-        //             sexual_words = sexual_words.filter(Boolean);
-        //         })
-        // }
+        if(anti_sexual != 'false') {
+            fetch(url)
+                .then( r => r.text() )
+                .then( t => {
+                    sexual_words = t.split("\n");
+                    // 空の要素を削除
+                    sexual_words = sexual_words.filter(Boolean);
+                })
+        }
             
 
         // 音声認識本体 /////////////////////////////////////////////////
@@ -451,14 +451,14 @@ Output:`
                     // 認識結果を取得
                     recog_text = results[i][0].transcript;
                         
-                    // // 認識結果の中の危険単語を検知して，結果を***に置き換える
-                    // if(anti_sexual != 'false') {
-                    //     for (var j = 0; j < sexual_words.length; j++) {
-                    //         if (recog_text.includes(sexual_words[j])) {
-                    //             recog_text = recog_text.replace(sexual_words[j], "***");
-                    //         }
-                    //     }
-                    // }
+                    // 認識結果の中の危険単語を検知して，結果を***に置き換える
+                    if(anti_sexual != 'false') {
+                        for (var j = 0; j < sexual_words.length; j++) {
+                            if (recog_text.includes(sexual_words[j])) {
+                                recog_text = recog_text.replace(sexual_words[j], "***");
+                            }
+                        }
+                    }
 
                     // 認識結果を表示する ---------------------
                     var allText = updateTextHtml(div_prefix="speech_text", toText=recog_text, is_final_text=true);
@@ -515,14 +515,14 @@ Output:`
                     // 認識結果を変数に格納
                     recog_IM_text = results[i][0].transcript
 
-                    // // 認識結果の中の危険単語を検知して，結果を***に置き換える
-                    // if(anti_sexual != 'false') {
-                    //     for (var j = 0; j < sexual_words.length; j++) {
-                    //         if (recog_IM_text.includes(sexual_words[j])) {
-                    //             recog_IM_text = recog_IM_text.replace(sexual_words[j], "***");
-                    //         }
-                    //     }
-                    // }
+                    // 認識結果の中の危険単語を検知して，結果を***に置き換える
+                    if(anti_sexual != 'false') {
+                        for (var j = 0; j < sexual_words.length; j++) {
+                            if (recog_IM_text.includes(sexual_words[j])) {
+                                recog_IM_text = recog_IM_text.replace(sexual_words[j], "***");
+                            }
+                        }
+                    }
 
                     // 画面表示テキスト更新 ---
                     if(recog_IM_text != ""){                        
