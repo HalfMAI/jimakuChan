@@ -280,9 +280,9 @@ Output:`
         // 一定時間認識結果がなかったら，そこで認識終了 --------------------
         var short_pause = getParam('short_pause');
         // short_pause = 5000; // 强制5秒无声音重置
-        if(short_pause == null) {
-            short_pause = 0;
-        }
+        // if(short_pause == null) {
+        //     short_pause = 0;
+        // }
 
         var stop_recog;
         var id_stop_recog;
@@ -420,6 +420,11 @@ Output:`
                 updateTimeout = setTimeout(function() {
                     updateTimeout = null;
                 }, 2500);
+
+                // ショートポーズストップ用タイムアウト
+                if(short_pause != null) {
+                    clearTimeout(id_stop_recog);
+                }
                 return;
             }
             
