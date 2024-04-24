@@ -421,19 +421,19 @@ Output:`
                     updateTimeout = null;
                 }, 2500);
 
-                // ショートポーズストップ用タイムアウト
-                if(short_pause != null) {
-                    clearTimeout(id_stop_recog);
-                }
+                // // ショートポーズストップ用タイムアウト
+                // if(short_pause != null) {
+                //     clearTimeout(id_stop_recog);
+                // }
                 return;
             }
             
-            // ショートポーズストップ用タイムアウト
-            if(short_pause != null) {
-                clearTimeout(id_stop_recog);
-                id_stop_recog = setTimeout(stop_recog, short_pause);
-                console.log('reset');
-            }
+            // // ショートポーズストップ用タイムアウト
+            // if(short_pause != null) {
+            //     clearTimeout(id_stop_recog);
+            //     id_stop_recog = setTimeout(stop_recog, short_pause);
+            //     console.log('reset');
+            // }
 
             // 如果已经设置了更新，则取消之前的更新；但如果现在是最后的识别结果就直接显示就行了
             if (updateTimeout) {
